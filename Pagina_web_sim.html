@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicación Interactiva: Fundamentos de Simulación en Sistemas Energéticos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; 
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-link.active {
+            color: #0284c7;
+            font-weight: 600;
+        }
+        .paradigm-btn.active {
+            background-color: #0284c7;
+            color: white;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+    <!-- Chosen Palette: Energía Calma (Neutros cálidos: bg-slate-50, text-slate-800; Acentos: sky-600, amber-500) -->
+    <!-- Application Structure Plan: Se diseñó una aplicación de una sola página con desplazamiento vertical y una barra de navegación fija. La estructura sigue un flujo narrativo: 1. Inicio (el "qué"), 2. ¿Por Qué Simular? (el "porqué"), 3. Paradigmas (el "cómo"), 4. Casos de Estudio (la "aplicación"), 5. Herramientas y Prácticas (los "recursos"), y 6. Futuro (el "mañana"). Esta estructura, a diferencia de la académica del informe, guía al usuario desde el problema general hacia las soluciones específicas y prácticas, facilitando un aprendizaje progresivo e intuitivo. -->
+    <!-- Visualization & Content Choices: 
+        - Informe: Complejidad de redes -> Objetivo: Informar -> Viz/Método: Tarjetas interactivas -> Interacción: Hover -> Justificación: Descompone un problema complejo en partes digeribles.
+        - Informe: Paradigmas de Simulación -> Objetivo: Organizar y Explicar -> Viz/Método: Pestañas con diagramas en HTML/CSS -> Interacción: Clic para cambiar de contenido -> Justificación: Permite al usuario enfocarse en un paradigma a la vez, comparando fácilmente sus características.
+        - Informe: Caso de Estudio de Estabilidad -> Objetivo: Demostrar un concepto -> Viz/Método: Gráfico de líneas (Chart.js) -> Interacción: Botón "Simular Falla" -> Justificación: Muestra de forma dinámica y visual el resultado de una simulación de estabilidad (convergencia vs. divergencia).
+        - Informe: Caso de Estudio de Almacenamiento -> Objetivo: Comparar y mostrar trade-offs -> Viz/Método: Gráfico de barras (Chart.js) -> Interacción: Botones para cambiar objetivo (costo vs. fiabilidad) -> Justificación: Ilustra claramente el impacto de diferentes criterios de optimización en la solución.
+        - Informe: Tabla de Software -> Objetivo: Organizar y permitir exploración -> Viz/Método: Lista interactiva -> Interacción: Filtros por categoría -> Justificación: Mejora la usabilidad respecto a una tabla estática, permitiendo al usuario encontrar herramientas relevantes rápidamente.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <header class="bg-slate-50/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#hero" class="text-xl font-bold text-sky-600">Simulación Energética</a>
+            <div class="hidden md:flex space-x-6 text-slate-600 font-medium">
+                <a href="#why-simulate" class="nav-link hover:text-sky-600 transition-colors">¿Por qué simular?</a>
+                <a href="#paradigms" class="nav-link hover:text-sky-600 transition-colors">Paradigmas</a>
+                <a href="#case-studies" class="nav-link hover:text-sky-600 transition-colors">Casos de Estudio</a>
+                <a href="#tools" class="nav-link hover:text-sky-600 transition-colors">Herramientas</a>
+                <a href="#future" class="nav-link hover:text-sky-600 transition-colors">Futuro</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="min-h-[60vh] flex items-center bg-white">
+            <div class="container mx-auto px-4 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 mb-4">Fundamentos de Simulación<br>en Sistemas Energéticos</h1>
+                <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
+                    Una exploración interactiva de cómo la simulación por ordenador se ha convertido en la herramienta indispensable para diseñar, operar y asegurar el futuro de nuestras redes eléctricas.
+                </p>
+            </div>
+        </section>
+
+        <section id="why-simulate" class="py-16 md:py-24">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">La Red Eléctrica Moderna: Un Desafío Complejo</h2>
+                    <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">Los sistemas energéticos han evolucionado de redes centralizadas a ecosistemas complejos y descentralizados. La simulación es la única forma viable de entender y gestionar esta nueva realidad.</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold mb-2 text-sky-700">Integración de Renovables</h3>
+                        <p class="text-slate-600">La variabilidad del sol y el viento introduce una incertidumbre que los métodos tradicionales no pueden manejar, exigiendo análisis probabilísticos.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold mb-2 text-sky-700">Electrificación y Prosumidores</h3>
+                        <p class="text-slate-600">Vehículos eléctricos y consumidores activos (prosumidores) crean flujos de energía bidireccionales y dinámicas de demanda complejas.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold mb-2 text-sky-700">Sistemas Ciberfísicos (CPES)</h3>
+                        <p class="text-slate-600">La dependencia de redes de comunicación y control digital introduce nuevas vulnerabilidades que requieren un análisis conjunto de los dominios físico y cibernético.</p>
+                    </div>
+                </div>
+                 <div class="mt-12 text-center">
+                    <h3 class="text-2xl font-bold mb-4">Beneficios Clave de la Simulación</h3>
+                     <div class="flex flex-wrap justify-center gap-4">
+                         <span class="bg-sky-100 text-sky-800 text-sm font-medium px-4 py-2 rounded-full">Reducir Riesgos y Costos</span>
+                         <span class="bg-amber-100 text-amber-800 text-sm font-medium px-4 py-2 rounded-full">Capacitación Avanzada</span>
+                         <span class="bg-teal-100 text-teal-800 text-sm font-medium px-4 py-2 rounded-full">Optimizar la Operación</span>
+                         <span class="bg-indigo-100 text-indigo-800 text-sm font-medium px-4 py-2 rounded-full">Garantizar Cumplimiento Normativo</span>
+                     </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="paradigms" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">Paradigmas de Simulación: El "Cómo"</h2>
+                    <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">No existe una única herramienta. La simulación de sistemas energéticos utiliza diferentes enfoques (paradigmas) según el problema a resolver. Seleccione un paradigma para explorarlo.</p>
+                </div>
+                <div class="flex flex-wrap justify-center gap-2 mb-8">
+                    <button class="paradigm-btn active text-sm md:text-base font-medium px-4 py-2 rounded-lg transition-colors bg-white hover:bg-sky-100 border border-slate-200" data-paradigm="time">Dominio del Tiempo</button>
+                    <button class="paradigm-btn text-sm md:text-base font-medium px-4 py-2 rounded-lg transition-colors bg-white hover:bg-sky-100 border border-slate-200" data-paradigm="probabilistic">Probabilístico</button>
+                    <button class="paradigm-btn text-sm md:text-base font-medium px-4 py-2 rounded-lg transition-colors bg-white hover:bg-sky-100 border border-slate-200" data-paradigm="agent">Agentes y Eventos</button>
+                    <button class="paradigm-btn text-sm md:text-base font-medium px-4 py-2 rounded-lg transition-colors bg-white hover:bg-sky-100 border border-slate-200" data-paradigm="system">Dinámica de Sistemas</button>
+                </div>
+                
+                <div id="paradigm-content" class="bg-slate-50 p-8 rounded-xl shadow-inner">
+                    <!-- Content will be injected here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <section id="case-studies" class="py-16 md:py-24">
+             <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">Casos de Estudio Interactivos: La Aplicación Práctica</h2>
+                    <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">Vea cómo se aplican estos paradigmas para resolver problemas reales. Interactúe con las simulaciones para entender los resultados.</p>
+                </div>
+
+                <div class="space-y-16">
+                    <!-- Case Study 1: Stability -->
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold mb-2">1. Estabilidad de la Red ante Fallas</h3>
+                        <p class="text-slate-600 mb-6">Este análisis evalúa si los generadores de un sistema permanecen sincronizados después de un cortocircuito. Una respuesta estable es crucial para evitar apagones en cascada. Pulse el botón para simular una falla en el sistema de prueba IEEE de 39 barras.</p>
+                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                            <div class="flex flex-col items-center">
+                               <div class="w-full max-w-sm mb-4">
+                                   <div class="aspect-w-1 aspect-h-1 relative">
+                                        <div class="border-2 border-slate-200 rounded-lg p-4 flex flex-col justify-center items-center">
+                                            <div class="text-sm font-mono text-slate-500 mb-2">Red Simplificada</div>
+                                            <div class="relative w-48 h-48">
+                                                <div class="absolute w-8 h-8 bg-sky-500 rounded-full top-1/2 left-1/2 -mt-4 -ml-4 flex items-center justify-center text-white font-bold">G</div>
+                                                <div class="absolute w-6 h-6 bg-slate-400 rounded-full top-4 left-4"></div>
+                                                <div class="absolute w-6 h-6 bg-slate-400 rounded-full top-8 right-2"></div>
+                                                <div class="absolute w-6 h-6 bg-slate-400 rounded-full bottom-2 right-6"></div>
+                                                <div class="absolute w-6 h-6 bg-slate-400 rounded-full bottom-6 left-2"></div>
+                                                <div class="absolute w-24 h-0.5 bg-slate-300 top-1/2 left-0 -mt-px"></div>
+                                                <div class="absolute w-24 h-0.5 bg-slate-300 top-1/2 right-0 -mt-px"></div>
+                                                <div class="absolute h-24 w-0.5 bg-slate-300 top-0 left-1/2 -ml-px"></div>
+                                                <div id="fault-line" class="absolute h-24 w-0.5 bg-slate-300 bottom-0 left-1/2 -ml-px transition-colors duration-500"></div>
+                                            </div>
+                                            <div class="text-xs text-red-500 font-bold mt-2">FALLA ➜</div>
+                                        </div>
+                                   </div>
+                               </div>
+                                <button id="simulate-fault-btn" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-6 rounded-lg transition-transform hover:scale-105">Simular Falla</button>
+                            </div>
+                            <div>
+                                <div id="stability-chart-container" class="chart-container">
+                                    <canvas id="stabilityChart"></canvas>
+                                </div>
+                                <p id="stability-text" class="text-center text-sm text-slate-500 mt-2">El gráfico mostrará el ángulo del rotor de los generadores.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Case Study 2: Storage Sizing -->
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold mb-2">2. Dimensionamiento de Almacenamiento para Eólica</h3>
+                        <p class="text-slate-600 mb-6">¿Cuánta capacidad de almacenamiento (en MWh) necesita un parque eólico para ser fiable y rentable? La simulación de Monte Carlo ayuda a encontrar el equilibrio. Seleccione un objetivo para ver la capacidad de almacenamiento resultante y el porqué de la diferencia.</p>
+                        <div class="flex justify-center gap-4 mb-8">
+                             <button data-storage="cost" class="storage-btn bg-sky-500 text-white font-semibold py-2 px-4 rounded-lg shadow">Optimizar por Costo Total</button>
+                             <button data-storage="reliability" class="storage-btn bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-lg">Cumplir Estándar de Fiabilidad</button>
+                        </div>
+                         <div class="grid md:grid-cols-2 gap-8 items-center">
+                             <div>
+                                <div class="chart-container">
+                                    <canvas id="storageChart"></canvas>
+                                </div>
+                             </div>
+                             <div class="bg-slate-50 p-6 rounded-lg">
+                                <h4 class="font-bold text-lg mb-2">Análisis del Resultado:</h4>
+                                <p id="storage-text" class="text-slate-700"></p>
+                             </div>
+                         </div>
+                    </div>
+
+                     <!-- Case Study 3: Demand Response -->
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold mb-2">3. Impacto de la Respuesta a la Demanda en Mercados</h3>
+                        <p class="text-slate-600 mb-6">La simulación basada en agentes puede modelar cómo los consumidores que ajustan su demanda (DR) afectan al mercado. Compare un mercado competitivo con uno donde dos empresas tienen poder de mercado (duopolio) y vea cómo la DR cambia el juego.</p>
+                        <div class="flex justify-center gap-4 mb-8">
+                             <button data-market="perfect" class="market-btn bg-sky-500 text-white font-semibold py-2 px-4 rounded-lg shadow">Competencia Perfecta</button>
+                             <button data-market="duopoly" class="market-btn bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-lg">Duopolio</button>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                            <div>
+                                <div class="chart-container">
+                                    <canvas id="marketChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="bg-slate-50 p-6 rounded-lg">
+                                <h4 class="font-bold text-lg mb-2">Análisis del Resultado:</h4>
+                                <p id="market-text" class="text-slate-700"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+             </div>
+        </section>
+
+        <section id="tools" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                 <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">Herramientas y Buenas Prácticas</h2>
+                    <p class="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">La simulación exitosa requiere las herramientas adecuadas y un proceso riguroso de Verificación, Validación y Acreditación (VV&A) para asegurar la credibilidad de los resultados.</p>
+                </div>
+                <div class="grid lg:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4">Ecosistema de Software</h3>
+                        <p class="text-slate-600 mb-6">Explore algunas de las herramientas de software más comunes. Filtre por dominio de aplicación.</p>
+                         <div class="flex flex-wrap gap-2 mb-4">
+                            <button class="filter-btn active bg-sky-100 text-sky-700 px-3 py-1 text-sm rounded-full" data-filter="all">Todos</button>
+                            <button class="filter-btn bg-slate-100 text-slate-600 px-3 py-1 text-sm rounded-full" data-filter="Transmisión">Transmisión</button>
+                            <button class="filter-btn bg-slate-100 text-slate-600 px-3 py-1 text-sm rounded-full" data-filter="Distribución">Distribución</button>
+                            <button class="filter-btn bg-slate-100 text-slate-600 px-3 py-1 text-sm rounded-full" data-filter="Microrredes">Microrredes</button>
+                            <button class="filter-btn bg-slate-100 text-slate-600 px-3 py-1 text-sm rounded-full" data-filter="General">General</button>
+                        </div>
+                        <div id="software-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                           <!-- Software items injected by JS -->
+                        </div>
+                    </div>
+                    <div>
+                         <h3 class="text-2xl font-bold mb-4">El Proceso de VV&A</h3>
+                         <div class="space-y-4">
+                            <div class="bg-slate-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-lg">1. Verificación</h4>
+                                <p class="text-slate-600 text-sm">¿Se construyó el modelo correctamente? Asegura que el código implementa la lógica matemática sin errores.</p>
+                            </div>
+                             <div class="bg-slate-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-lg">2. Validación</h4>
+                                <p class="text-slate-600 text-sm">¿Se construyó el modelo correcto? Compara los resultados de la simulación con datos del mundo real para asegurar su precisión.</p>
+                            </div>
+                             <div class="bg-slate-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-lg">3. Acreditación</h4>
+                                <p class="text-slate-600 text-sm">¿Deberíamos usar este modelo? Es la decisión final de que el modelo es suficientemente creíble para un propósito específico.</p>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="future" class="py-16 md:py-24">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">El Futuro de la Simulación</h2>
+                    <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">La convergencia de nuevas tecnologías está llevando la simulación a un nuevo nivel de sofisticación y capacidad.</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold mb-2 text-sky-700">Inteligencia Artificial (IA/ML)</h3>
+                        <p class="text-slate-600">La IA acelera las simulaciones (modelos sustitutos) y mejora los pronósticos de renovables y demanda, permitiendo análisis en tiempo real.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold mb-2 text-sky-700">Gemelos Digitales</h3>
+                        <p class="text-slate-600">Réplicas virtuales de activos físicos que se actualizan en tiempo real, permitiendo mantenimiento predictivo y optimización continua.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold mb-2 text-sky-700">Co-simulación</h3>
+                        <p class="text-slate-600">Acopla simuladores de diferentes dominios (potencia, comunicación, mercado) para analizar la resiliencia de los sistemas ciberfísicos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>Aplicación web interactiva creada con la ayuda de inteligencia artificial generativa.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const appData = {
+        paradigms: {
+            time: {
+                title: 'Dominio del Tiempo (Análisis Dinámico)',
+                description: 'Este es el enfoque fundamental para estudiar cómo responde el sistema (tensiones, frecuencias) a perturbaciones como cortocircuitos o pérdida de generación. Resuelve las ecuaciones diferenciales-algebraicas (EDAs) que gobiernan la física de la red paso a paso en el tiempo.',
+                details: '<strong>Tipos Clave:</strong><br>• <strong>EMT (Transitorios Electromagnéticos):</strong> Para fenómenos de alta frecuencia (microsegundos) como rayos y maniobras.<br>• <strong>RMS (Fasores):</strong> Para estabilidad de frecuencia y ángulo del rotor (segundos a minutos).',
+                diagram: `<div class="w-full h-24 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center p-4">
+                            <div class="w-full relative">
+                                <div class="h-0.5 bg-slate-400"></div>
+                                <div class="absolute top-1/2 -mt-3.5 -ml-2 text-red-500">⚡️<span class="text-xs">Falla</span></div>
+                                <div class="absolute top-1/2 -mt-2.5 left-1/4 h-5 w-0.5 bg-slate-400"></div>
+                                <div class="absolute top-1/2 -mt-2.5 left-2/4 h-5 w-0.5 bg-slate-400"></div>
+                                <div class="absolute top-1/2 -mt-2.5 left-3/4 h-5 w-0.5 bg-slate-400"></div>
+                                <div class="absolute -bottom-4 text-xs text-slate-500 w-full flex justify-between"><span>t=0</span><span>t=1s</span><span>t=2s</span><span>t=3s</span></div>
+                            </div>
+                         </div>`
+            },
+            probabilistic: {
+                title: 'Probabilístico (Gestión de Incertidumbre)',
+                description: 'Aborda la incertidumbre de las renovables y la demanda. En lugar de una simulación, ejecuta miles de escenarios (método de Monte Carlo), muestreando valores de variables inciertas de sus distribuciones de probabilidad.',
+                details: '<strong>Aplicaciones Clave:</strong><br>• <strong>Adecuación de la Generación:</strong> ¿Hay suficiente capacidad para cubrir la demanda de forma fiable? (Índices LOLP/LOLE).<br>• <strong>Cuantificación de Riesgos:</strong> Entiende no solo el valor esperado, sino la probabilidad de resultados extremos.',
+                diagram: `<div class="w-full h-24 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-around p-4 text-3xl">
+                            <span>🎲</span>
+                            <span class="text-slate-400 text-2xl font-mono">➜</span>
+                            <span>📊</span>
+                            <span class="text-slate-400 text-2xl font-mono">➜</span>
+                            <span class="text-amber-500">💡</span>
+                         </div>`
+            },
+            agent: {
+                title: 'Basada en Agentes (SBA) y Eventos Discretos (SED)',
+                description: 'Enfoques "de abajo hacia arriba" (bottom-up) donde el comportamiento del sistema emerge de las interacciones de entidades autónomas (agentes) o de una secuencia de eventos discretos.',
+                details: '<strong>Aplicaciones Clave:</strong><br>• <strong>SBA:</strong> Modelado de mercados eléctricos (agentes generadores compitiendo), y respuesta a la demanda (agentes consumidores decidiendo).<br>• <strong>SED:</strong> Operación de microrredes (control basado en eventos) y redes de comunicación.',
+                diagram: `<div class="w-full h-24 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-around p-4">
+                            <div class="text-center">👤<div class="text-xs">Gen</div></div>
+                            <div class="text-center">👤<div class="text-xs">Cons</div></div>
+                            <span class="text-slate-400 text-2xl">⇄</span>
+                            <div class="text-center">🏢<div class="text-xs">Mercado</div></div>
+                         </div>`
+            },
+            system: {
+                title: 'Dinámica de Sistemas (Análisis de Políticas)',
+                description: 'Se enfoca en la estructura de retroalimentación de sistemas complejos para analizar su comportamiento a largo plazo. Es ideal para el análisis de políticas energéticas y la planificación de la transición a décadas vista.',
+                details: '<strong>Elementos Clave:</strong><br>• <strong>Stocks:</strong> Acumulaciones (ej. capacidad solar instalada).<br>• <strong>Flujos:</strong> Tasas que cambian los stocks (ej. tasa de nuevas instalaciones).<br>• <strong>Bucles de Retroalimentación:</strong> Cadenas causales que impulsan la dinámica del sistema.',
+                 diagram: `<div class="w-full h-24 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center p-4">
+                            <div class="text-center text-sm">
+                                <span>Capacidad Solar</span>
+                                <span class="text-2xl mx-2 text-slate-400">→</span>
+                                <span>↓ Costos</span>
+                                <span class="text-2xl mx-2 text-slate-400">→</span>
+                                <span>↑ Adopción</span>
+                                <div class="text-2xl text-slate-400">↻</div>
+                            </div>
+                         </div>`
+            }
+        },
+        software: [
+            { name: 'PSS/E, PSLF', domain: 'Transmisión', desc: 'Estándar en Norteamérica para planificación de transmisión. Robusto pero caro.' },
+            { name: 'DIgSILENT PowerFactory', domain: 'Transmisión', desc: 'Popular en Europa. Fuerte en modelado de renovables. Altamente integrado.' },
+            { name: 'PSCAD, EMTP', domain: 'Transmisión', desc: 'Gold standard para estudios de alta frecuencia (EMT) a nivel de componentes.' },
+            { name: 'OpenDSS', domain: 'Distribución', desc: 'Open-source, ideal para redes de distribución desbalanceadas e integración de DERs.' },
+            { name: 'HOMER Pro/Grid', domain: 'Microrredes', desc: 'Estándar para dimensionamiento tecno-económico de microrredes.' },
+            { name: 'NREL SAM', domain: 'Microrredes', desc: 'Open-source para modelado de rendimiento y finanzas de proyectos renovables.' },
+            { name: 'AnyLogic', domain: 'General', desc: 'Plataforma multi-paradigma (SBA, DS, SED) muy flexible para sistemas complejos.' },
+            { name: 'MATLAB/Simulink', domain: 'General', desc: 'Entorno flexible para crear modelos personalizados de cualquier tipo.' }
+        ],
+        caseStudies: {
+            stability: {
+                initialText: 'El gráfico mostrará el ángulo del rotor de los generadores. Un sistema estable muestra oscilaciones amortiguadas.',
+                simulatingText: 'Simulando... La falla causa una gran perturbación inicial...',
+                stable: {
+                    text: '<strong>Resultado: ESTABLE.</strong> Después de que la falla es despejada, las oscilaciones de los ángulos del rotor se amortiguan y los generadores convergen a un nuevo estado de equilibrio, permaneciendo en sincronismo.',
+                    data: {
+                        labels: Array.from({length: 11}, (_, i) => i.toFixed(1)),
+                        datasets: [
+                            { label: 'Generador 1', data: [0, 20, 15, 12, 10, 9, 8.5, 8.2, 8.1, 8.05, 8], borderColor: '#0ea5e9', fill: false, tension: 0.1 },
+                            { label: 'Generador 2', data: [0, -15, -10, -8, -6, -5, -4.5, -4.2, -4.1, -4.05, -4], borderColor: '#f59e0b', fill: false, tension: 0.1 }
+                        ]
+                    }
+                },
+                unstable: {
+                     text: '<strong>Resultado: INESTABLE.</strong> En este escenario (ej. la falla no se despeja a tiempo), el ángulo de un generador diverge continuamente, perdiendo el sincronismo con el resto del sistema. Esto llevaría a su desconexión.',
+                     data: {
+                        labels: Array.from({length: 11}, (_, i) => i.toFixed(1)),
+                        datasets: [
+                            { label: 'Generador 1', data: [0, 20, 15, 18, 25, 35, 50, 70, 95, 125, 160], borderColor: '#0ea5e9', fill: false, tension: 0.1 },
+                            { label: 'Generador 2', data: [0, -15, -10, -12, -18, -22, -25, -28, -30, -32, -33], borderColor: '#ef4444', fill: false, tension: 0.1 }
+                        ]
+                    }
+                }
+            },
+            storage: {
+                initialText: 'Seleccione un objetivo de optimización para ver el resultado de la simulación.',
+                cost: {
+                    text: 'Para <strong>minimizar el costo total</strong> (inversión + costo de apagones), la capacidad óptima es de solo <strong>16 MWh</strong>. Esta solución acepta un número mayor de interrupciones porque el costo de construir más almacenamiento es mayor que el costo económico de esos apagones para los clientes.',
+                    data: [16, 0]
+                },
+                reliability: {
+                    text: 'Para <strong>cumplir el estándar de fiabilidad</strong> (máx. 8 horas de apagones al año), se necesita una capacidad mucho mayor: <strong>150 MWh</strong>. Esto garantiza el suministro casi constante pero a un costo de inversión significativamente más alto, que puede no ser comercialmente viable.',
+                    data: [0, 150]
+                }
+            },
+            market: {
+                initialText: 'Seleccione una estructura de mercado para analizar su comportamiento.',
+                perfect: {
+                    text: 'En un mercado de <strong>competencia perfecta</strong>, los precios reflejan los costos marginales de generación. La participación a gran escala en Respuesta a la Demanda (curva verde) aplana los picos de precios, ya que la demanda se reduce cuando los precios son altos, beneficiando a todos los consumidores.',
+                    data: {
+                        base: [40, 42, 41, 45, 60, 85, 95, 90, 70, 55, 50, 48],
+                        dr:   [40, 42, 41, 45, 58, 70, 75, 72, 65, 55, 50, 48]
+                    }
+                },
+                duopoly: {
+                    text: 'En un <strong>duopolio</strong>, los generadores dominantes usan su poder de mercado para inflar los precios (curva roja), especialmente en horas pico. Sin embargo, la Respuesta a la Demanda (curva verde) es una herramienta poderosa para mitigar este poder, ya que la demanda elástica limita la capacidad de los generadores para fijar precios altos.',
+                    data: {
+                        base: [55, 58, 56, 65, 90, 130, 150, 140, 100, 75, 65, 60],
+                        dr:   [55, 58, 56, 65, 85, 105, 110, 108, 90, 75, 65, 60]
+                    }
+                }
+            }
+        }
+    };
+
+    let stabilityChart, storageChart, marketChart;
+
+    function initParadigmContent() {
+        const contentDiv = document.getElementById('paradigm-content');
+        const defaultParadigm = appData.paradigms.time;
+        contentDiv.innerHTML = `
+            <h3 class="text-2xl font-bold mb-4">${defaultParadigm.title}</h3>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-slate-600 mb-4">${defaultParadigm.description}</p>
+                    <div class="text-sm text-slate-700 bg-white p-4 rounded-md">${defaultParadigm.details}</div>
+                </div>
+                <div class="flex items-center justify-center">${defaultParadigm.diagram}</div>
+            </div>
+        `;
+    }
+
+    function initSoftwareList() {
+        const listDiv = document.getElementById('software-list');
+        listDiv.innerHTML = appData.software.map(sw => `
+            <div class="software-item p-3 bg-slate-50 rounded-md" data-domain="${sw.domain}">
+                <p class="font-semibold text-sky-800">${sw.name}</p>
+                <p class="text-sm text-slate-600">${sw.desc}</p>
+            </div>
+        `).join('');
+    }
+
+    function initCharts() {
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        const stabilityCtx = document.getElementById('stabilityChart').getContext('2d');
+        stabilityChart = new Chart(stabilityCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 11}, (_, i) => i.toFixed(1)),
+                datasets: [
+                    { label: 'Generador 1', data: [], borderColor: '#0ea5e9', fill: false, tension: 0.1 },
+                    { label: 'Generador 2', data: [], borderColor: '#f59e0b', fill: false, tension: 0.1 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Ángulo del Rotor del Generador (Grados)' },
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { title: { display: true, text: 'Ángulo (°)' } },
+                    x: { title: { display: true, text: 'Tiempo (s)' } }
+                }
+            }
+        });
+        document.getElementById('stability-text').innerText = appData.caseStudies.stability.initialText;
+        
+        const storageCtx = document.getElementById('storageChart').getContext('2d');
+        storageChart = new Chart(storageCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Optimización por Costo', 'Estándar de Fiabilidad'],
+                datasets: [{
+                    label: 'Capacidad de Almacenamiento (MWh)',
+                    data: [0, 0],
+                    backgroundColor: ['#38bdf8', '#fbbf24'],
+                    borderColor: ['#0284c7', '#d97706'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Capacidad de Almacenamiento Requerida' },
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Capacidad (MWh)' }, beginAtZero: true }
+                }
+            }
+        });
+        document.getElementById('storage-text').innerText = appData.caseStudies.storage.initialText;
+
+
+        const marketCtx = document.getElementById('marketChart').getContext('2d');
+        marketChart = new Chart(marketCtx, {
+            type: 'line',
+            data: {
+                labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+                datasets: [
+                    { label: 'Precio Base', data: [], borderColor: '#ef4444', tension: 0.1, fill: false },
+                    { label: 'Precio con DR', data: [], borderColor: '#22c55e', tension: 0.1, fill: false }
+                ]
+            },
+             options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Precio de la Electricidad (€/MWh)' },
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { title: { display: true, text: 'Precio (€/MWh)' }, beginAtZero: true },
+                    x: { title: { display: true, text: 'Hora del Día' } }
+                }
+            }
+        });
+        document.getElementById('market-text').innerText = appData.caseStudies.market.initialText;
+    }
+    
+    function setupEventListeners() {
+        document.querySelectorAll('.paradigm-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const paradigmKey = e.target.dataset.paradigm;
+                const paradigmData = appData.paradigms[paradigmKey];
+                
+                document.querySelectorAll('.paradigm-btn').forEach(b => b.classList.remove('active', 'bg-sky-600', 'text-white'));
+                e.target.classList.add('active', 'bg-sky-600', 'text-white');
+
+                const contentDiv = document.getElementById('paradigm-content');
+                contentDiv.innerHTML = `
+                    <h3 class="text-2xl font-bold mb-4">${paradigmData.title}</h3>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <p class="text-slate-600 mb-4">${paradigmData.description}</p>
+                            <div class="text-sm text-slate-700 bg-white p-4 rounded-md">${paradigmData.details}</div>
+                        </div>
+                        <div class="flex items-center justify-center">${paradigmData.diagram}</div>
+                    </div>
+                `;
+            });
+        });
+
+        document.getElementById('simulate-fault-btn').addEventListener('click', () => {
+            const textEl = document.getElementById('stability-text');
+            const lineEl = document.getElementById('fault-line');
+            
+            textEl.innerText = appData.caseStudies.stability.simulatingText;
+            lineEl.classList.add('bg-red-500');
+
+            stabilityChart.data.datasets[0].data = [];
+            stabilityChart.data.datasets[1].data = [];
+            stabilityChart.update();
+            
+            setTimeout(() => {
+                const isStable = Math.random() > 0.4;
+                const result = isStable ? appData.caseStudies.stability.stable : appData.caseStudies.stability.unstable;
+                
+                textEl.innerHTML = result.text;
+                stabilityChart.data.datasets[0].data = result.data.datasets[0].data;
+                stabilityChart.data.datasets[1].data = result.data.datasets[1].data;
+                stabilityChart.update();
+                lineEl.classList.remove('bg-red-500');
+
+            }, 1500);
+        });
+
+        document.querySelectorAll('.storage-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const selection = e.target.dataset.storage;
+                const result = appData.caseStudies.storage[selection];
+                document.getElementById('storage-text').innerHTML = result.text;
+                storageChart.data.datasets[0].data = result.data;
+                storageChart.update();
+
+                document.querySelectorAll('.storage-btn').forEach(b => {
+                    b.classList.remove('bg-sky-500', 'text-white', 'shadow');
+                    b.classList.add('bg-slate-200', 'text-slate-700');
+                });
+                e.target.classList.add('bg-sky-500', 'text-white', 'shadow');
+                e.target.classList.remove('bg-slate-200', 'text-slate-700');
+            });
+        });
+
+         document.querySelectorAll('.market-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const selection = e.target.dataset.market;
+                const result = appData.caseStudies.market[selection];
+                
+                document.getElementById('market-text').innerHTML = result.text;
+                marketChart.data.datasets[0].data = result.data.base;
+                marketChart.data.datasets[1].data = result.data.dr;
+                marketChart.update();
+
+                document.querySelectorAll('.market-btn').forEach(b => {
+                    b.classList.remove('bg-sky-500', 'text-white', 'shadow');
+                    b.classList.add('bg-slate-200', 'text-slate-700');
+                });
+                e.target.classList.add('bg-sky-500', 'text-white', 'shadow');
+                e.target.classList.remove('bg-slate-200', 'text-slate-700');
+            });
+        });
+
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const filter = e.target.dataset.filter;
+
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active', 'bg-sky-100', 'text-sky-700'));
+                e.target.classList.add('active', 'bg-sky-100', 'text-sky-700');
+
+                document.querySelectorAll('.software-item').forEach(item => {
+                    if (filter === 'all' || item.dataset.domain === filter) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('main section');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 60) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    }
+
+    initParadigmContent();
+    initSoftwareList();
+    initCharts();
+    setupEventListeners();
+
+    document.querySelector('.storage-btn[data-storage="cost"]').click();
+    document.querySelector('.market-btn[data-market="perfect"]').click();
+
+});
+</script>
+</body>
+</html>
